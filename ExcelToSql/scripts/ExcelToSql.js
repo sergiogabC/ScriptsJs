@@ -10,10 +10,9 @@ const dbConfig = {
 
 async function importarExcel() {
   // Lee el Excel
-  const workbook = xlsx.readFile("costingReport.xls");
+  const workbook = xlsx.readFile("./archivosExcel/costingReport.xls");
   const sheetName = workbook.SheetNames[0];
   const sheet = workbook.Sheets[sheetName];
-  const data = xlsx.utils.sheet_to_json(sheet); // array de objetos
 
   // Conecta a la base de datos
   const connection = await mysql.createConnection(dbConfig);
@@ -21,18 +20,20 @@ async function importarExcel() {
   // Inserta los datos
   const insertQuery = `
     INSERT INTO costing_report 
-    (materialNumber, description, profit_center, costing_date, material_cost)
-    VALUES (?, ?, ?, ?, ?)
-  `;
+    (material_number, description, profit_center, costing_date, material_cost, pls, cost_total)
+    VALUES (?, ?, ?, STR_TO_DATE(?,"%m/%d/%y"), ?, ?, ?)`;
 
-  for (const row of data) {
+  for (let i = 4; i < 49026; i++) {
+    console.log(i);
+
     await connection.execute(insertQuery, [
-      row.nombre || "",
-      row.descripcion || "",
-      row.unidad_medida || "",
-      row.precio_unitario || 0,
-      row.proveedor || "",
-      row.fecha_actualizacion || null,
+      sheet[`A${i}`]?.v || "",
+      sheet[`B${i}`]?.v || "",
+      sheet[`C${i}`]?.v || "",
+      sheet[`D${i}`]?.w || "",
+      sheet[`E${i}`]?.v || 0.0,
+      sheet[`F${i}`]?.v || 0.0,
+      sheet[`G${i}`]?.v || 0.0,
     ]);
   }
 
