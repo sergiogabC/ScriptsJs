@@ -10,9 +10,9 @@ CREATE TABLE costing_report
     description VARCHAR(225) NOT NULL,
     profit_center VARCHAR(50) NOT NULL,
     costing_date DATE NOT NULL,
-    material_cost DECIMAL(8,2) NOT NULL,
+    material_cost DECIMAL(10,2) NOT NULL,
     pls DECIMAL(4,3) NOT NULL,
-    cost_total DECIMAL(8,2) NOT NULL,
+    cost_total DECIMAL(10,2) NOT NULL,
     PRIMARY KEY(material_number)
 );
 
