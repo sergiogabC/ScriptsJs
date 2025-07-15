@@ -78,20 +78,6 @@ const dataInputs = [
 ];
 
 const dataQto = [
-  "CAPEX",
-  "Hughes Equipment",
-  "VSAT",
-  "1505216-0332",
-  "HT2010",
-  "HT2010 Consumer Broadband Satellite Router, Ka Band only",
-  1204,
-  "Unit",
-  0,
-  "NRC",
-  85.08,
-];
-
-const dataResult = [
   [
     "CAPEX",
     "Hughes Equipment",
@@ -103,19 +89,63 @@ const dataResult = [
     "Unit",
     0,
     "NRC",
-    121.54,
-    121.54,
-    146337.6,
     85.08,
-    102436.32,
-    30,
-    "HNS",
-    6.75,
-    4.73,
-    1.16,
-    0.81,
-    0.0,
-    0.0,
+  ],
+  [
+    "CAPEX",
+    "Hughes Equipment",
+    "VSAT",
+    "1505216-0332",
+    "HT2010",
+    "HT2010 Consumer Broadband Satellite Router, Ka Band only",
+    1204,
+    "Unit",
+    0,
+    "NRC",
+
+    85.08,
+  ],
+  [
+    "CAPEX",
+    "Hughes Equipment",
+    "VSAT",
+    "1505216-0332",
+    "HT2010",
+    "HT2010 Consumer Broadband Satellite Router, Ka Band only",
+    1204,
+    "Unit",
+    0,
+    "NRC",
+
+    85.08,
+  ],
+  [
+    "CAPEX",
+    "Hughes Equipment",
+    "VSAT",
+    "1505216-0332",
+    "HT2010",
+    "HT2010 Consumer Broadband Satellite Router, Ka Band only",
+    1204,
+    "Unit",
+    0,
+    "NRC",
+
+    85.08,
+  ],
+  [
+    "CAPEX",
+    "Hughes Equipment",
+    "VSAT",
+    "1505216-0332",
+    "HT2010",
+    "HT2010 Consumer Broadband Satellite Router, Ka Band only",
+    1204,
+    "Unit",
+    0,
+    "NRC",
+
+    85.08,
   ],
 ];
 
@@ -156,10 +186,17 @@ const aligmentTitlesQto = {
   horizontal: "center",
   wrapText: true,
 };
-const fillTitlesQto = {
+
+const fillQto = {
   type: "pattern",
   pattern: "solid",
   fgColor: { argb: "D9D9D9" },
+};
+
+const fontDataQto = { name: "Calibri", size: 10 };
+const aligmentDataQto = {
+  vertical: "center",
+  horizontal: "center",
 };
 
 //------------------------Comienzo de WorkBook----------------------
@@ -169,7 +206,6 @@ workBook.creator = "";
 workBook.created = new Date();
 workBook.modified = new Date();
 workBook.properties.date1904 = true;
-workBook.calcProperties.fullCalcOnLoad = true;
 
 const sheet = workBook.addWorksheet("QTO DB");
 
@@ -258,20 +294,28 @@ try {
       theme: null,
     },
     columns: columnsTitles,
-    rows: dataResult,
+    rows: dataQto,
   });
 } catch (e) {
   console.log(e);
 }
 
-// let row = sheet.getRow(24);
+// const rowTitle = sheet.getRow(24);
 
-// row.values = titlesQtos;
-// row.height = 13;
-// row.eachCell((cell, colNumber) => {
+// rowTitle.height = 13;
+// rowTitle.eachCell((cell, colNumber) => {
 //   cell.font = fontTitlesQto;
 //   cell.alignment = aligmentTitlesQto;
-//   cell.fill = fillTitlesQto;
+//   cell.fill = fillQto;
 // });
 
+// let rowData = sheet.getRow(25);
+// rowData.height = 13;
+// rowData.eachCell((cell, colnumber) => {
+//   cell.font = fontDataQto;
+//   cell.alignment = aligmentDataQto;
+//   cell.fill = fillQto;
+// });
+
+workBook.calcProperties.fullCalcOnLoad = true;
 workBook.xlsx.writeFile("./files/qtoC3.xlsx");
