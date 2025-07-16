@@ -1,153 +1,70 @@
 import ExcelJs from "exceljs";
+import { titlesQtos, titlesInputs } from "./services/constExcel.js";
 
-const titlesInputs = [
-  "Client:",
-  "Country:",
-  "Proposal Manager:",
-  "HUGHES T19 Number of Sites:",
-  "Sites out of coverage:",
-  "Number of Sites:",
-  "Remote Spares:",
-  "Total of Spares:",
-  "Service Plan:",
-  "Total capacity SES-17 (Mbps):",
-  "Overbooking",
-  "Total Ka band Capacity (Mbps):",
-  "Average Mbps per Site:",
-  "#¡DESCONOCIDO!",
-  "Terminal Unit Price (USD) - ExWorks USA:",
-  "COST - SES Ka band Mbps / Month (USD):",
-  "COST - HUGHES  Ka band Mbps / Month (USD):",
-  "Contract:",
-  "% sites with Penalties / month:",
-  "CAPEX Financing Rate:",
-  "UIT:",
-];
+const insertDataForms = (cellLetter, formula) => {
+  let numCell = 25;
+  for (let i = 1; i <= matrizData.length; i++) {
+    sheet.getCell(`${cellLetter}${numCell}`).value = {
+      formula: formula,
+      result: null,
+    };
 
-const titlesQtos = [
-  "Type",
-  "Category",
-  "Subcategory",
-  "Manufacturer Part #",
-  "Product Code",
-  "Description",
-  "Qty",
-  "Unit of Measure",
-  "Discount",
-  "Finance?",
-  "Unit Price",
-  "Unit Disc. Price",
-  "Ext. Disc. Price",
-  "Unit Cost",
-  "Ext. Cost",
-  "Profit Margin",
-  "Owner",
-  "Monthly Price per Site",
-  "Monthly Cost per Site",
-  "Monthly Price per Mbps",
-  "Monthly Cost per Mbps",
-  "Financed CAPEX",
-  "Financed Monthly Price per Site",
-  "Notes",
-];
+    numCell++;
+  }
+};
 
-const cellsNum = [4, 5, 6, 7, 13, 14];
+const insertStyleData = (cellLetters) => {
+  for (let letter of cellLetters) {
+    let numCell = 25;
+    for (let i = 1; i <= matrizData.length; i++) {
+      let cell = sheet.getCell(`${letter}${numCell}`);
+      cell.font = fontDataQto;
+      cell.alignment = aligmentDataQto;
+      cell.fill = fillQto;
+      numCell++;
+    }
+  }
+};
 
-const dataInputs = [
-  "MINEDU",
-  "PERU",
-  "JUAN ASTO",
-  1204,
-  0,
-  1204,
-  3.0,
-  37,
-  ".30/5",
-  0,
-  17,
-  7023,
-  5.8,
-  "S/ 3.70",
-  409.2,
-  125,
-  40,
-  18,
-  1.0,
-  14.0,
-  1338,
-];
+const dataInputs = {
+  client: "",
+  country: "",
+  proposalManager: "",
+  ht19NumberSites: 1,
+  sitesOutCoverage: 0,
+  numSites: 1111,
+  remoteSpares: 0,
+  totalOfSpares: 0,
+  capacitySes17: 0,
+  overbooking: 0,
+  cTotalBandaKa: 11111,
+  mbpsProm: 0,
+  solDolar: 0,
+  pUTExWorks: 0,
+  costBandKaSes: 0,
+  costHBandKa: 0,
+  contract: 11,
+  sitesPenalties: 0,
+  rateFinancingCapex: 12,
+  uit: 0,
+};
 
-const dataQto = [
-  [
-    "CAPEX",
-    "Hughes Equipment",
-    "VSAT",
-    "1505216-0332",
-    "HT2010",
-    "HT2010 Consumer Broadband Satellite Router, Ka Band only",
-    1204,
-    "Unit",
-    0,
-    "NRC",
-    85.08,
-  ],
-  [
-    "CAPEX",
-    "Hughes Equipment",
-    "VSAT",
-    "1505216-0332",
-    "HT2010",
-    "HT2010 Consumer Broadband Satellite Router, Ka Band only",
-    1204,
-    "Unit",
-    0,
-    "NRC",
+const dataQto = {
+  type: ["1111", "22"],
+  category: ["", ""],
+  subCategory: ["", ""],
+  manufacturerPart: ["qqqqq+qqq", "11"],
+  margin: [12, 12],
+  productCode: ["", ""],
+  description: ["11", ""],
+  qty: [22, 2],
+  unitOfMeasure: ["", ""],
+  discount: [11, 11],
+  finance: ["www", "122"],
+  owner: ["", ""],
+};
 
-    85.08,
-  ],
-  [
-    "CAPEX",
-    "Hughes Equipment",
-    "VSAT",
-    "1505216-0332",
-    "HT2010",
-    "HT2010 Consumer Broadband Satellite Router, Ka Band only",
-    1204,
-    "Unit",
-    0,
-    "NRC",
-
-    85.08,
-  ],
-  [
-    "CAPEX",
-    "Hughes Equipment",
-    "VSAT",
-    "1505216-0332",
-    "HT2010",
-    "HT2010 Consumer Broadband Satellite Router, Ka Band only",
-    1204,
-    "Unit",
-    0,
-    "NRC",
-
-    85.08,
-  ],
-  [
-    "CAPEX",
-    "Hughes Equipment",
-    "VSAT",
-    "1505216-0332",
-    "HT2010",
-    "HT2010 Consumer Broadband Satellite Router, Ka Band only",
-    1204,
-    "Unit",
-    0,
-    "NRC",
-
-    85.08,
-  ],
-];
+const cellsNumHeigth = [4, 5, 6, 7, 13, 14];
 
 //------------------------Estilos----------------------------
 const fontTitlesInputs = { name: "Calibri", size: 9, bold: true };
@@ -261,7 +178,7 @@ for (let title of titlesInputs) {
   cell.fill = fillTitlesInputs;
   let row = sheet.getRow(numCel);
 
-  if (cellsNum.includes(numCel)) {
+  if (cellsNumHeigth.includes(numCel)) {
     row.height = 15;
   } else {
     row.height = 12;
@@ -284,7 +201,41 @@ for (let title of titlesQtos) {
   columnsTitles.push({ name: title, filterButton: true });
 }
 
-let rowsDatas = [];
+let matrizData = [];
+let cellStartNum = 25;
+
+for (let i = 0; i < dataQto.type.length; i++) {
+  let margin = 1 - dataQto.margin[i] === 0 ? 0 : dataQto.margin[i] / 100;
+
+  matrizData.push([
+    dataQto.type[i],
+    dataQto.category[i],
+    dataQto.subCategory[i],
+    dataQto.manufacturerPart[i],
+    dataQto.productCode[i],
+    dataQto.description[i],
+    dataQto.qty[i],
+    dataQto.unitOfMeasure[i],
+    dataQto.discount[i],
+    dataQto.finance[i],
+    null,
+    null,
+    null,
+    54,
+    null,
+    null,
+    dataQto.owner[i],
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    "",
+  ]);
+
+  cellStartNum++;
+}
 
 try {
   sheet.addTable({
@@ -294,27 +245,66 @@ try {
       theme: null,
     },
     columns: columnsTitles,
-    rows: dataQto,
+    rows: matrizData,
   });
 } catch (e) {
   console.log(e);
 }
 
-// const rowTitle = sheet.getRow(24);
+insertDataForms("K", "[[Unit Cost]]/0.7");
+insertDataForms("L", "[[Unit Price]]*(1-[Discount])");
+insertDataForms("M", `IF([Type]=1,$C$19,1)*[[Unit Disc. Price]]*[Qty]`);
+insertDataForms(
+  "O",
+  `IF([Type]="OPEX",$C$19,1)*[[Unit Cost]]*[Qty]
+`
+);
+insertDataForms("P", `1-([[Ext. Cost]]/[[Ext. Disc. Price]])`);
+insertDataForms("R", `[[Ext. Disc. Price]]/$C$7/$C$19`);
+insertDataForms("S", `[[Ext. Cost]]/$C$7/$C$19`);
+insertDataForms("T", `[[Ext. Disc. Price]]/$C$13/$C$19`);
+insertDataForms("U", `[[Ext. Cost]]/$C$13/$C$19`);
+insertDataForms(
+  "V",
+  `IF(AND([Type]="CAPEX",[[Finance?]]="MRC"),PMT($C$21/12,$C$19,-[[Ext. Disc. Price]]),0)`
+);
+insertDataForms(
+  "W",
+  `IF(AND([Type]="CAPEX",[[Finance?]]="MRC"),PMT($C$21/12,$C$19,-[[Ext. Disc. Price]])/$C$7,IF([Type]="OPEX",[[Ext. Disc. Price]]/$C$7/$C$19,0))`
+);
 
-// rowTitle.height = 13;
-// rowTitle.eachCell((cell, colNumber) => {
-//   cell.font = fontTitlesQto;
-//   cell.alignment = aligmentTitlesQto;
-//   cell.fill = fillQto;
-// });
+const rowTitle = sheet.getRow(24);
+
+rowTitle.height = 13;
+rowTitle.eachCell((cell, colNumber) => {
+  cell.font = fontTitlesQto;
+  cell.alignment = aligmentTitlesQto;
+  cell.fill = fillQto;
+});
+
+insertStyleData([
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "N",
+  "Q",
+  "X",
+]);
 
 // let rowData = sheet.getRow(25);
 // rowData.height = 13;
 // rowData.eachCell((cell, colnumber) => {
-//   cell.font = fontDataQto;
-//   cell.alignment = aligmentDataQto;
-//   cell.fill = fillQto;
+// cell.font = fontDataQto;
+// cell.alignment = aligmentDataQto;
+// cell.fill = fillQto;
 // });
 
 workBook.calcProperties.fullCalcOnLoad = true;
