@@ -1,6 +1,15 @@
 import ExcelJs from "exceljs";
 import { titlesQtos, titlesInputs } from "./services/constExcel.js";
 
+const insertFormTotal = (letter, listForms) => {
+  let numCell = 5;
+  for (let form of listForms) {
+    let cell = sheet.getCell(`${letter}${numCell}`);
+    cell.value = { formula: form, result: null };
+    numCell++;
+  }
+};
+
 const insertDataForms = (cellLetter, formula) => {
   let numCell = 25;
   for (let i = 1; i <= matrizData.length; i++) {
@@ -13,17 +22,47 @@ const insertDataForms = (cellLetter, formula) => {
   }
 };
 
-const insertStyleData = (cellLetters) => {
+//--Inserta los datos generales
+
+const insertDataStyle = (cellLetters, fillStyle, format) => {
   for (let letter of cellLetters) {
     let numCell = 25;
     for (let i = 1; i <= matrizData.length; i++) {
       let cell = sheet.getCell(`${letter}${numCell}`);
       cell.font = fontDataQto;
       cell.alignment = aligmentDataQto;
-      cell.fill = fillQto;
+      cell.fill = fillStyle;
+      if (!(typeof format === "undefined")) cell.numFmt = format;
       numCell++;
     }
   }
+};
+
+const listDataInputs = (dataInputs) => {
+  const list = [
+    dataInputs.client,
+    dataInputs.country,
+    dataInputs.proposalManager,
+    dataInputs.ht19NumberSites,
+    dataInputs.sitesOutCoverage,
+    dataInputs.numSites,
+    dataInputs.remoteSpares,
+    dataInputs.totalOfSpares,
+    "",
+    dataInputs.capacitySes17,
+    dataInputs.overbooking,
+    dataInputs.cTotalBandaKa,
+    dataInputs.mbpsProm,
+    dataInputs.solDolar,
+    dataInputs.pUTExWorks,
+    dataInputs.costBandKaSes,
+    dataInputs.costHBandKa,
+    dataInputs.contract,
+    dataInputs.sitesPenalties,
+    dataInputs.rateFinancingCapex,
+    dataInputs.uit,
+  ];
+  return list;
 };
 
 const dataInputs = {
@@ -66,7 +105,37 @@ const dataQto = {
 
 const cellsNumHeigth = [4, 5, 6, 7, 13, 14];
 
-//------------------------Estilos----------------------------
+//------------------------Styles----------------------------
+
+//Width Column
+const widthColumn = [
+  {},
+  { width: 27 },
+  { width: 15 },
+  { width: 22 },
+  { width: 30 },
+  { width: 45 },
+  { width: 17 },
+  { width: 17 },
+  { width: 12 },
+  { width: 12 },
+  { width: 12.5 },
+  { width: 17 },
+  { width: 16 },
+  { width: 12 },
+  { width: 13.5 },
+  { width: 14 },
+  { width: 10 },
+  { width: 22 },
+  { width: 22 },
+  { width: 24 },
+  { width: 24 },
+  { width: 17 },
+  { width: 28 },
+  { width: 10 },
+];
+
+//---------------Titles Inputs-----------
 const fontTitlesInputs = { name: "Calibri", size: 9, bold: true };
 const alignmentsTitlesInputs = { vertical: "bottom", horizontal: "right" };
 const fillTitlesInputs = {
@@ -75,41 +144,44 @@ const fillTitlesInputs = {
   fgColor: { argb: "BDD7EE" },
 };
 
+//---------------Titles Datas-----------
 const fontDatasInputsBold = {
   name: "Calibri",
   size: 9,
   bold: true,
   color: { argb: "C00000" },
 };
-
 const aligmentsDatasInputs = { vertical: "bottom", horizontal: "left" };
-
 const fillDatasInputs = {
   type: "pattern",
   pattern: "solid",
   fgColor: { argb: "D9D9D9" },
 };
-
 const borderDatasInputs = {
   bottom: { style: "thin" },
   left: { style: "thin" },
   right: { style: "thin" },
 };
 
+//---------------Titles Qtos-----------
 const fontTitlesQto = { name: "Calibri", size: 10, bold: true };
-
 const aligmentTitlesQto = {
   vertical: "center",
   horizontal: "center",
   wrapText: true,
 };
-
 const fillQto = {
   type: "pattern",
   pattern: "solid",
   fgColor: { argb: "D9D9D9" },
 };
+const fillCalcQto = {
+  type: "pattern",
+  pattern: "solid",
+  fgColor: { argb: "F8CBAD" },
+};
 
+//---------------Data Qtos-----------
 const fontDataQto = { name: "Calibri", size: 10 };
 const aligmentDataQto = {
   vertical: "center",
@@ -126,29 +198,11 @@ workBook.properties.date1904 = true;
 
 const sheet = workBook.addWorksheet("QTO DB");
 
-sheet.columns = [
-  {},
-  { width: 27 },
-  { width: 15 },
-  { width: 22 },
-  { width: 30 },
-  { width: 45 },
-  { width: 17 },
-  { width: 17 },
-  { width: 12 },
-  { width: 12 },
-  { width: 12.5 },
-  { width: 17 },
-  { width: 16 },
-  { width: 12 },
-  { width: 13.5 },
-];
+sheet.columns = widthColumn;
 
 sheet.mergeCells("A1:B1");
 
 let cellInputTitle = sheet.getCell("A1");
-let cellDataTitle = sheet.getCell("C1");
-
 cellInputTitle.value = "Inputs";
 cellInputTitle.font = { size: 9, name: "Calibri", color: { argb: "FFFFFF" } };
 cellInputTitle.alignment = { horizontal: "center", vertical: "bottom" };
@@ -158,39 +212,44 @@ cellInputTitle.fill = {
   fgColor: { argb: "000000" },
 };
 
+let cellDataTitle = sheet.getCell("C1");
 cellDataTitle.fill = {
   type: "pattern",
   pattern: "solid",
   fgColor: { argb: "000000" },
 };
 
-//FFFFFF
-
-let numCel = 2;
-
 //------------------------Pintado de tabla inputs------------------------
+
+let numCellTitle = 2;
+let numCellData = 2;
+
+const listData = listDataInputs(dataInputs);
+
 for (let title of titlesInputs) {
-  sheet.mergeCells(`A${numCel}:B${numCel}`);
-  let cell = sheet.getCell(`B${numCel}`);
+  sheet.mergeCells(`A${numCellTitle}:B${numCellTitle}`);
+  let cell = sheet.getCell(`B${numCellTitle}`);
   cell.value = title;
   cell.font = fontTitlesInputs;
   cell.alignment = alignmentsTitlesInputs;
   cell.fill = fillTitlesInputs;
-  let row = sheet.getRow(numCel);
-
-  if (cellsNumHeigth.includes(numCel)) {
+  let row = sheet.getRow(numCellTitle);
+  if (cellsNumHeigth.includes(numCellTitle)) {
     row.height = 15;
   } else {
     row.height = 12;
   }
-
-  if (numCel === 22) cell.border = { bottom: { style: "thin" } };
-  let cellData = sheet.getCell(`C${numCel}`);
+  if (numCellTitle === 22) cell.border = { bottom: { style: "thin" } };
+  numCellTitle++;
+}
+for (let data of listData) {
+  let cellData = sheet.getCell(`C${numCellData}`);
+  cellData.value = data;
   cellData.font = fontDatasInputsBold;
   cellData.alignment = aligmentsDatasInputs;
   cellData.fill = fillDatasInputs;
   cellData.border = borderDatasInputs;
-  numCel++;
+  numCellData++;
 }
 
 //------------------------Pintado de tabla qto-------------------
@@ -202,11 +261,9 @@ for (let title of titlesQtos) {
 }
 
 let matrizData = [];
-let cellStartNum = 25;
+let cellQtoNum = 25;
 
 for (let i = 0; i < dataQto.type.length; i++) {
-  let margin = 1 - dataQto.margin[i] === 0 ? 0 : dataQto.margin[i] / 100;
-
   matrizData.push([
     dataQto.type[i],
     dataQto.category[i],
@@ -234,7 +291,7 @@ for (let i = 0; i < dataQto.type.length; i++) {
     "",
   ]);
 
-  cellStartNum++;
+  cellQtoNum++;
 }
 
 try {
@@ -274,38 +331,72 @@ insertDataForms(
 );
 
 const rowTitle = sheet.getRow(24);
-
+const listColLCalc = [12, 13, 15, 16, 18, 19, 20, 21, 22, 23];
 rowTitle.height = 13;
-rowTitle.eachCell((cell, colNumber) => {
+rowTitle.eachCell((cell, collNumber) => {
   cell.font = fontTitlesQto;
   cell.alignment = aligmentTitlesQto;
-  cell.fill = fillQto;
+  listColLCalc.includes(collNumber)
+    ? (cell.fill = fillCalcQto)
+    : (cell.fill = fillQto);
 });
 
-insertStyleData([
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "H",
-  "I",
-  "J",
-  "K",
-  "N",
-  "Q",
-  "X",
-]);
+insertDataStyle(["A", "B", "C", "D", "E", "F", "Q", "H", "J", "X"], fillQto);
+insertDataStyle(
+  ["L", "M", "O", "R", "S", "T", "U", "V", "W"],
+  fillCalcQto,
+  `_("$"* #,##0.00_);_("$"* (#,##0.00);_("$"* "-"??_);_(@_)`
+);
+insertDataStyle(["G"], fillQto, "0");
+insertDataStyle(["I"], fillQto, "0%");
+insertDataStyle(["P"], fillCalcQto, "0%");
+insertDataStyle(
+  ["K", "N"],
+  fillQto,
+  `_("$"* #,##0.00_);_("$"* (#,##0.00);_("$"* "-"??_);_(@_)`
+);
 
-// let rowData = sheet.getRow(25);
-// rowData.height = 13;
-// rowData.eachCell((cell, colnumber) => {
-// cell.font = fontDataQto;
-// cell.alignment = aligmentDataQto;
-// cell.fill = fillQto;
-// });
+//------------------------Pintado de tabla Totals-------------------
+
+const listFormsPrice = [
+  `SUMIF(A24:A40,"CAPEX",M24:M40)`,
+  `SUMIF(A24:A40,"OPEX",M24:M40)`,
+  `SUM(F5:F6)`,
+];
+const listFormsCost = [
+  `SUMIF(A24:A40,"CAPEX",O24:O40)`,
+  `SUMIF(A24:A40,"OPEX",O24:O40)`,
+  `SUM(G5:G6)`,
+];
+const listFormsMargin = [`1-(G5/F5)`, `1-(G6/F6)`, `1-(G7/F7)`];
+
+insertFormTotal("F", listFormsPrice);
+insertFormTotal("G", listFormsCost);
+insertFormTotal("H", listFormsMargin);
+
+const fontTitleTotal = { name: "Calibri", size: 11, bold: true };
+const alignmentTitleTotal = { vertical: "center", horizontal: "center" };
+const fillTitleTotal = {
+  type: "pattern",
+  pattern: "solid",
+  fgColor: { argb: "B4C6E7" },
+};
+
+const insertTitleAndStyleTotal = (cell, title) => {
+  let cellValue = sheet.getCell(cell);
+  cellValue.value = title;
+  cellValue.font = fontTitleTotal;
+  cellValue.alignment = alignmentTitleTotal;
+  cellValue.fill = fillTitleTotal;
+};
+insertTitleAndStyleTotal("E5", "CAPEX");
+insertTitleAndStyleTotal("E6", "OPEX");
+insertTitleAndStyleTotal("F4", "PRICE");
+insertTitleAndStyleTotal("G4", "COST");
+insertTitleAndStyleTotal("H4", "MARGIN");
+insertTitleAndStyleTotal("F13", "Price x Site x Month");
+insertTitleAndStyleTotal("G13", "Cost x Site x Month");
+insertTitleAndStyleTotal("H13", "MARGIN");
 
 workBook.calcProperties.fullCalcOnLoad = true;
 workBook.xlsx.writeFile("./files/qtoC3.xlsx");
