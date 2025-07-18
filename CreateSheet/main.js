@@ -1,6 +1,59 @@
 import ExcelJs from "exceljs";
 import { titlesQtos, titlesInputs } from "./services/constExcel.js";
 
+const insertFormInCell = (cell, form) => {
+  if (Array.isArray(cell)) {
+    for (let c of cell) {
+      let cellValue = sheet.getCell(c);
+      cellValue.value = {
+        formula: form,
+        result: null,
+      };
+    }
+  } else {
+    let cellValue = sheet.getCell(cell);
+    cellValue.value = {
+      formula: form,
+      result: null,
+    };
+  }
+};
+
+const insertStyleCell = (cell, styles) => {
+  if (Array.isArray(cell)) {
+    for (let c of cell) {
+      let cell = sheet.getCell(c);
+      cell.alignment =
+        typeof styles.alignment === "undefined" ? null : styles.alignment;
+      cell.font = typeof styles.font === "undefined" ? null : styles.font;
+      cell.fill = typeof styles.fill === "undefined" ? null : styles.fill;
+      cell.border = typeof styles.border === "undefined" ? null : styles.border;
+    }
+  } else {
+    let cell = sheet.getCell(cell);
+    cell.alignment =
+      typeof styles.aligment === "undefined" ? null : styles.alignment;
+    cell.font = typeof styles.font === "undefined" ? null : styles.font;
+    cell.fill = typeof styles.fill === "undefined" ? null : styles.fill;
+    cell.border = typeof styles.border === "undefined" ? null : styles.border;
+  }
+};
+
+const insertStyleCellLetterIter = (letters, styles, numStart, lengthI) => {
+  for (let letter of letters) {
+    let num = numStart;
+    for (let i = 1; i <= lengthI; i++) {
+      let cell = sheet.getCell(letter + num);
+      cell.alignment =
+        typeof styles.alignment === "undefined" ? null : styles.alignment;
+      cell.font = typeof styles.font === "undefined" ? null : styles.font;
+      cell.fill = typeof styles.fill === "undefined" ? null : styles.fill;
+      cell.border = typeof styles.border === "undefined" ? null : styles.border;
+      num++;
+    }
+  }
+};
+
 const insertFormTotal = (letter, listForms) => {
   let numCell = 5;
   for (let form of listForms) {
@@ -376,18 +429,38 @@ insertFormTotal("H", listFormsMargin);
 
 const fontTitleTotal = { name: "Calibri", size: 11, bold: true };
 const alignmentTitleTotal = { vertical: "center", horizontal: "center" };
+const aligmentPriceTotal = { vertical: "center", horizontal: "left" };
 const fillTitleTotal = {
   type: "pattern",
   pattern: "solid",
   fgColor: { argb: "B4C6E7" },
 };
+const bordTotal = {
+  bottom: { style: "thin" },
+  left: { style: "thin" },
+  right: { style: "thin" },
+  top: { style: "thin" },
+};
+
+const alignmentDataTotal = { vertical: "center", horizontal: "left" };
+const fillDataTotal = {
+  type: "pattern",
+  pattern: "solid",
+  fgColor: { argb: "D9D9D9" },
+};
+const fontDataTotal = { name: "Calibri", size: 11 };
 
 const insertTitleAndStyleTotal = (cell, title) => {
   let cellValue = sheet.getCell(cell);
   cellValue.value = title;
   cellValue.font = fontTitleTotal;
-  cellValue.alignment = alignmentTitleTotal;
+  if (title === "PRICE" || title === "Price x Site x Month") {
+    cellValue.alignment = aligmentPriceTotal;
+  } else {
+    cellValue.alignment = alignmentTitleTotal;
+  }
   cellValue.fill = fillTitleTotal;
+  cellValue.border = bordTotal;
 };
 insertTitleAndStyleTotal("E5", "CAPEX");
 insertTitleAndStyleTotal("E6", "OPEX");
@@ -397,6 +470,29 @@ insertTitleAndStyleTotal("H4", "MARGIN");
 insertTitleAndStyleTotal("F13", "Price x Site x Month");
 insertTitleAndStyleTotal("G13", "Cost x Site x Month");
 insertTitleAndStyleTotal("H13", "MARGIN");
+
+insertFormInCell("F14", `F7/C7/C19`);
+insertFormInCell("G14", `G7/C7/C19`);
+insertFormInCell("H14", `1-(G14/F14)`);
+
+insertStyleCellLetterIter(
+  ["F", "G", "H"],
+  {
+    alignment: alignmentDataTotal,
+    border: bordTotal,
+    font: fontDataTotal,
+    fill: fillDataTotal,
+  },
+  5,
+  3
+);
+
+insertStyleCell(["F14", "G14", "H14"], {
+  alignment: alignmentDataTotal,
+  border: bordTotal,
+  font: fontDataTotal,
+  fill: fillDataTotal,
+});
 
 workBook.calcProperties.fullCalcOnLoad = true;
 workBook.xlsx.writeFile("./files/qtoC3.xlsx");
