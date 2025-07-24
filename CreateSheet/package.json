@@ -5,13 +5,16 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "sheet": "node main.js"
+    "excelJs": "node ExcelJS/main.js",
+    "prueba": "node ExcelJS/prueba.js",
+    "populate": "node xlsx-populate/main.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "exceljs": "^4.4.0"
+    "exceljs": "^4.4.0",
+    "xlsx-populate": "^1.21.0"
   }
 }
