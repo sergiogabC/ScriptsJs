@@ -50,17 +50,17 @@ export function getDataInputs() {
 
 const dataQto = {
   type: ["1111", "22"],
-  category: ["", ""],
-  subCategory: ["", ""],
+  category: ["sda", "vs"],
+  subCategory: ["asa", "da"],
   manufacturerPart: ["qqqqq+qqq", "11"],
   margin: [12, 12],
-  productCode: ["", ""],
-  description: ["11", ""],
+  productCode: ["vv", "aa"],
+  description: ["11", "ss"],
   qty: [22, 2],
-  unitOfMeasure: ["", ""],
+  unitOfMeasure: ["asda", "ad"],
   discount: [11, 11],
   finance: ["www", "122"],
-  owner: ["", ""],
+  owner: ["sad", "dad"],
 };
 
 export function getDataQto() {
@@ -82,4 +82,28 @@ export function getDataQto() {
   }
 
   return matrizData;
+}
+
+export function getDataQtoJson() {
+  let jsonData = [];
+
+  for (let i = 0; i < dataQto.type.length; i++) {
+    jsonData.push({
+      row: i,
+      data: {
+        type: dataQto.type[i],
+        category: dataQto.category[i],
+        subCategory: dataQto.subCategory[i],
+        manufacturerPart: dataQto.manufacturerPart[i],
+        productCode: dataQto.productCode[i],
+        description: dataQto.description[i],
+        qty: dataQto.qty[i],
+        unitMeasure: dataQto.unitOfMeasure[i],
+        discount: dataQto.discount[i],
+        finance: dataQto.finance[i],
+      },
+    });
+  }
+
+  return JSON.stringify(jsonData);
 }

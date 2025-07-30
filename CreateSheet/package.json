@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "excelJs": "node ExcelJS/main.js",
     "prueba": "node ExcelJS/prueba.js",
+    "json":"node ExcelJS/pruebaJson.js",
     "populate": "node xlsx-populate/main.js"
   },
   "keywords": [],
