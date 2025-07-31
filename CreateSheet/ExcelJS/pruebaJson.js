@@ -1,5 +1,5 @@
-import { getDataQtoJson } from "../Data/inputsTable.js";
+import { getDataJson } from "../Data/inputsTable.js";
 
-const dataJson = getDataQtoJson();
+const dataJson = getDataJson();
 
 console.log(dataJson);

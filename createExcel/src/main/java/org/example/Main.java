@@ -10,9 +10,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.OutputStream;
+import java.lang.reflect.Type;
 import java.util.List;
-import java.util.Scanner;
 
 class Data{
     String type;
@@ -61,23 +62,28 @@ class DataComplete{
 }
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
 
-        Scanner scanner = new Scanner(System.in);
+        if(args.length<2){
+            System.out.println("Wa");
+            System.exit(1);
+        }
+
+        String jsonPath = args[0];
+        String outputPath = args[1];
+
         Gson gson = new Gson();
         List<DataComplete> dataCompletes = null;
 
-        while(scanner.hasNextLine()){
+        Type type = new TypeToken<List<DataComplete>>(){}.getType();
 
-            String jsonLine = scanner.nextLine();
-            if (jsonLine.equalsIgnoreCase("FIN")) {
-                break;
-            }
-            dataCompletes = gson.fromJson(jsonLine,new TypeToken<List<DataComplete>>(){}.getType());
+        FileReader reader = new FileReader(jsonPath);
 
-        }
+        dataCompletes = gson.fromJson(reader,type);
 
-        scanner.close();
+
+
+
 
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("sheetOne");
@@ -98,7 +104,7 @@ public class Main {
 
 
 
-        try (OutputStream fileOut = new FileOutputStream("workbook.xlsx")) {
+        try (OutputStream fileOut = new FileOutputStream(outputPath)) {
             wb.write(fileOut);
         } catch (Exception e) {
             throw new RuntimeException(e);

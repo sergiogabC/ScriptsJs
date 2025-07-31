@@ -107,3 +107,46 @@ export function getDataQtoJson() {
 
   return JSON.stringify(jsonData);
 }
+
+export function getDataJson() {
+  let data = [
+    {
+      row: 0,
+      data: {
+        type: "CAPEX",
+        category: "Hughes Equipment",
+        subCategory: "VSAT",
+        manufacturerPart: "1506560-0021+1506561-0021",
+        productCode: "ANTENA 90CM",
+        description: "90cm Ka-Band Saturated Antenna (Single IFL) 1pk",
+        qty: 1204,
+        unitMeasure: "Unit",
+        discount: 0,
+        finance: "NRC",
+        unitCost: 22,
+        owner: "",
+        margin: 30,
+      },
+    },
+    {
+      row: 0,
+      data: {
+        type: "CAPEX",
+        category: "Hughes Equipment",
+        subCategory: "VSAT",
+        manufacturerPart: "1506560-0021+1506561-0021",
+        productCode: "ANTENA 90CM",
+        description: "90cm Ka-Band Saturated Antenna (Single IFL) 1pk",
+        qty: 1204,
+        unitMeasure: "Unit",
+        discount: 0,
+        finance: "NRC",
+        unitCost: 22,
+        owner: "",
+        margin: 30,
+      },
+    },
+  ];
+
+  return JSON.stringify(data);
+}
