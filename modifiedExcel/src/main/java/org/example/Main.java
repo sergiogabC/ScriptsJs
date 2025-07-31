@@ -11,109 +11,129 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import java.io.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
 
 public class Main {
 
-        public static void main(String[] args) throws Exception {
-
-            File archivo = new File("QTO.xlsx");
-
-
-            InputStream input = new FileInputStream(archivo);
-            XSSFWorkbook workbook = new XSSFWorkbook(input);
-            XSSFSheet sheet = workbook.getSheetAt(0);
-
-            List<XSSFTable> tables = sheet.getTables();
-
-            XSSFTable table = tables.get(0);
-
-            AreaReference rangeTable = table.getArea();
-
-            CellReference cellStart = rangeTable.getFirstCell();
-            CellReference cellEnd = rangeTable.getLastCell();
-
-            int rowStart = cellStart.getRow();
-            int rowEnd = cellEnd.getRow();
-            int collStart = cellStart.getCol();
-            int collEnd = cellEnd.getCol();
-            int numIncrement = 1;
-            int newRowIndex = rowEnd + numIncrement;
+    public static void main(String[] args) throws Exception {
+        //Datos
 
 
-            Row newRow = sheet.createRow(newRowIndex);
+        //Obtener archivo xlsx
+        File archivo = new File("QTO.xlsx");
+        InputStream input = new FileInputStream(archivo);
+        XSSFWorkbook workbook = new XSSFWorkbook(input);
 
-            Row rowBase = sheet.getRow(rowEnd);
+        //Obtener tabla y rango
+        XSSFSheet sheet = workbook.getSheetAt(0);
+        List<XSSFTable> tables = sheet.getTables();
+        XSSFTable table = tables.get(0);
+        AreaReference rangeTable = table.getArea();
 
-            for (int col = collStart; col <= collEnd; col++) {
-                Cell cell = newRow.createCell(col);
+        //Obtener celdas
+        CellReference cellStart = rangeTable.getFirstCell();
+        CellReference cellEnd = rangeTable.getLastCell();
 
-            }
+        //Columnas y filas del rango
+        int rowStart  = cellStart.getRow();
+        int rowEnd = cellEnd.getRow();
+        int collStart = cellStart.getCol();
+        int collEnd = cellEnd.getCol();
+        int numIncrement = 5;
+        int newRowIndex = rowEnd + numIncrement;
 
-            int numStartRow = 25;
-            for(int i = 1;i<=numIncrement;i++){
-                formulaCopier(numStartRow,sheet);
-                styleCopier(numStartRow,sheet);
-                numStartRow++;
-            }
+        //Crear las nuevas filas
+        Row newRow = sheet.createRow(newRowIndex);
+        //Row rowBase = sheet.getRow(rowEnd);
 
-            CellReference newCellEnd = new CellReference(newRowIndex, collEnd);
-            AreaReference newRange = workbook.getCreationHelper().createAreaReference(cellStart, newCellEnd);
-            table.setArea(newRange);
-
-
-
-            FileOutputStream ouputStream = new FileOutputStream("QTO Output.xlsx");
-            workbook.write(ouputStream);
-            ouputStream.close();
-            workbook.close();
-            System.out.println("check");
+        for (int col = collStart; col <= collEnd; col++) {
+            newRow.createCell(col);
         }
 
-        public static void styleCopier(int numRow,XSSFSheet sheet){
-            int cellNumI = 0;
-            for(int i = 0; i<24;i++){
+        //Agregar los estilos y formulas a las celdas
+        int row = rowStart+2;
+        int[] numNotValue = {11,12,14,15,17,18,19,20,21,22};
+        for(int i = 1;i<=numIncrement;i++){
+            styleCopier(row,sheet);
+            formulaCopier(row,sheet);
+            setValue(row,sheet,"xxx",numNotValue);
+            row++;
+        }
+
+        //Creación de la nueva referencia
+        CellReference newCellEnd = new CellReference(newRowIndex, collEnd);
+        AreaReference newRange = workbook.getCreationHelper().createAreaReference(cellStart, newCellEnd);
+        table.setArea(newRange);
+
+
+        //Salida del archivo
+        FileOutputStream outputStream = new FileOutputStream("QTO Output.xlsx");
+        workbook.write(outputStream);
+        outputStream.close();
+        workbook.close();
+        System.out.println("check");
+    }
+
+    public static void styleCopier(int numRow,XSSFSheet sheet){
+        int cellNumI = 0;
+        for(int i = 0; i<24;i++){
+            XSSFRow rowObtained = sheet.getRow(24);
+            XSSFCell cellObtained = rowObtained.getCell(cellNumI);
+            XSSFCellStyle styleObtained = cellObtained.getCellStyle();
+
+            XSSFRow rowModified = sheet.getRow(numRow);
+            XSSFCell cellModified = rowModified.getCell(cellNumI);
+            cellModified.setCellStyle(styleObtained);
+            cellNumI++;
+        }
+    }
+
+    public static void formulaCopier(int numRow,XSSFSheet sheet){
+        int cellNumI = 11;
+
+        for(int i = 11; i<23;i++){
+            if(!(cellNumI == 13 || cellNumI == 16)){
                 XSSFRow rowObtained = sheet.getRow(24);
                 XSSFCell cellObtained = rowObtained.getCell(cellNumI);
-                XSSFCellStyle styleObtained = cellObtained.getCellStyle();
+                String formulaObtained = cellObtained.getCellFormula();
 
                 XSSFRow rowModified = sheet.getRow(numRow);
                 XSSFCell cellModified = rowModified.getCell(cellNumI);
-                cellModified.setCellStyle(styleObtained);
+                cellModified.setCellFormula(formulaObtained);
+                cellNumI++;
+            }else {
                 cellNumI++;
             }
+
         }
+    }
 
-        public static void formulaCopier(int numRow,XSSFSheet sheet){
-            int cellNumI = 11;
+    public static XSSFCell obtainedCell(int numRow,int numCol,XSSFSheet sheet){
+        XSSFRow rowObtained = sheet.getRow(numRow);
+        XSSFCell cellObtained = rowObtained.getCell(numCol);
 
-            for(int i = 11; i<23;i++){
-                if(!(cellNumI == 13 || cellNumI == 16)){
-                    XSSFRow rowObtained = sheet.getRow(24);
-                    XSSFCell cellObtained = rowObtained.getCell(cellNumI);
-                    String styleObtained = cellObtained.getCellFormula();
+        return cellObtained;
+    }
 
-                    XSSFRow rowModified = sheet.getRow(numRow);
-                    XSSFCell cellModified = rowModified.getCell(cellNumI);
-                    cellModified.setCellFormula(styleObtained);
-                    cellNumI++;
-                }else {
-                    cellNumI++;
-                }
+    public static void setValue(int row,XSSFSheet sheet,String values,int[] numNotValues){
 
+        for (int i = 0; i < 23; i++) {
+
+            int finalI = i;
+            if(!(Arrays.stream(numNotValues).anyMatch(n-> n == finalI))){
+
+                XSSFRow rowObtained = sheet.getRow(row);
+                XSSFCell cellObtained = rowObtained.getCell(i);
+
+                cellObtained.setCellValue(values);
             }
+
         }
 
-        public static XSSFCell obtainedCell(int numRow,int numCol,XSSFSheet sheet){
-            XSSFRow rowObtained = sheet.getRow(numRow);
-            XSSFCell cellObtained = rowObtained.getCell(numCol);
-
-            return cellObtained;
-        }
+    }
 
 
 }
-
-
