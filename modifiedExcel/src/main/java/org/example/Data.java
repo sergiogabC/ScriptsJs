@@ -25,13 +25,14 @@ public class Data {
         return new int[]{qty,discount};
     }
 
-    public String getUnitPrice(){
-        if(margin ==0){
+    public String getMarg(){
+        if(margin == 0){
             return "[@[Unit Cost]]";
         }
-        String marg = String.valueOf(margin/100);
-        String unitPrice = "[@[Unit Cost]]/"+marg;
-        return unitPrice;
+        float marg = (float) margin /100;
+        float mar = 1-marg;
+
+        return String.valueOf(mar);
     }
 
     @Override

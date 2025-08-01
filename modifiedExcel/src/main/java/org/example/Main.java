@@ -32,20 +32,62 @@ public class Main {
         String pathOut = args[1];
 
         Gson gson = new Gson();
-        List<DataComplete> dataCompletes = null;
+        ListDatas listDataCompletes;
 
-        Type type = new TypeToken<List<DataComplete>>(){}.getType();
+        Type type = new TypeToken<ListDatas>(){}.getType();
         FileReader reader = new FileReader(pathData);
 
-        dataCompletes = gson.fromJson(reader,type);
+        listDataCompletes = gson.fromJson(reader,type);
+        List<DataComplete> listDatas = listDataCompletes.listDatas;
 
+        String[] listParametersStrings = listDataCompletes.parameters.getListStrings();
+        float[] listParametersFloats = listDataCompletes.parameters.getListFloats();
+        int[] listParametersInts = listDataCompletes.parameters.getListInts();
 
         //Obtener archivo xlsx
         InputStream input = Main.class.getClassLoader().getResourceAsStream("QTO.xlsx");
         try (XSSFWorkbook workbook = new XSSFWorkbook(input)) {
 
-            //Obtener tabla y rango
+            //Obtener sheet
             XSSFSheet sheet = workbook.getSheetAt(0);
+
+
+            //Introducir Datos primera tabla parametros
+            int totalLenght = listParametersStrings.length+listParametersFloats.length+listParametersInts.length;
+
+            int[] listIStrings = {1,2,3,9};
+            int[] listIFloats = {7,11,13,14,15,19,20};
+            int iStrings = 0;
+            int iFloats = 0;
+            int iInts = 0;
+
+            for(int i = 1; i<=totalLenght;i++){
+                XSSFRow rowParameters = sheet.getRow(i);
+                XSSFCell cellParameter = rowParameters.getCell(2);
+
+                int finalSi = i;
+                if(Arrays.stream(listIStrings).anyMatch(n-> n == finalSi)){
+                    cellParameter.setCellValue(listParametersStrings[iStrings]);
+
+                    iStrings++;
+                    continue;
+                }
+
+                if(Arrays.stream(listIFloats).anyMatch(n-> n == finalSi)){
+                    cellParameter.setCellValue(listParametersFloats[iFloats]);
+
+                    iFloats++;
+                    continue;
+                }
+
+
+                cellParameter.setCellValue(listParametersInts[iInts]);
+                iInts++;
+
+
+            }
+
+            //Obtener tabla y rango
             List<XSSFTable> tables = sheet.getTables();
             XSSFTable table = tables.get(0);
             AreaReference rangeTable = table.getArea();
@@ -70,9 +112,14 @@ public class Main {
                 newRow.createCell(col);
             }
 
+            //Creación de la nueva referencia
+            CellReference newCellEnd = new CellReference(newRowIndex, collEnd);
+            AreaReference newRange = workbook.getCreationHelper().createAreaReference(cellStart, newCellEnd);
+            table.setArea(newRange);
+
             int[] numNotValue = {11,12, 14, 15, 17, 18, 19, 20, 21, 22};
             int rowPrimary = rowStart +2;
-            for(DataComplete dataComplete: dataCompletes){
+            for(DataComplete dataComplete: listDatas){
                 setValue(rowPrimary,sheet,dataComplete,numNotValue);
                 rowPrimary++;
             }
@@ -85,18 +132,58 @@ public class Main {
                 rowSecundary++;
             }
 
+            //Ingresar funcion en tabla de calculos generales
 
+            XSSFRow rowCapex =sheet.getRow(4);
+            XSSFRow rowOpex =sheet.getRow(5);
+            XSSFRow rowTotal = sheet.getRow(6);
 
+            int f = 5;
+            int g =6;
+            int h = 7;
 
-            //Creación de la nueva referencia
-            CellReference newCellEnd = new CellReference(newRowIndex, collEnd);
-            AreaReference newRange = workbook.getCreationHelper().createAreaReference(cellStart, newCellEnd);
-            table.setArea(newRange);
+            XSSFCell cellCapexPrice = rowCapex.getCell(f);
+            XSSFCell cellCapexCost = rowCapex.getCell(g);
+            XSSFCell cellOpexPrice = rowOpex.getCell(f);
+            XSSFCell cellOpexCost = rowOpex.getCell(g);
 
+            int [][] rutaCell = {{4,h},{5,h},{6,h},{13,f},{13,g},{13,h}};
+
+            XSSFCell cellTotalPrice = rowTotal.getCell(5);
+            XSSFCell cellTotalCost = rowTotal.getCell(6);
+
+            int rowStartForm = rowStart+1;
+            int rowEndForm = newRowIndex+1;
+
+            String formCapexPrice = "SUMIF(A"+rowStartForm+":A"+rowEndForm+",\"CAPEX\",M"+rowStartForm+":M"+rowEndForm+")";
+            String formCapexCost = "SUMIF(A"+rowStartForm+":A"+rowEndForm+",\"CAPEX\",O"+rowStartForm+":O"+rowEndForm+")";
+            String formOpexPrice = "SUMIF(A"+rowStartForm+":A"+rowEndForm+",\"OPEX\",M"+rowStartForm+":M"+rowEndForm+")";
+            String formOpexCost = "SUMIF(A"+rowStartForm+":A"+rowEndForm+",\"OPEX\",O"+rowStartForm+":O"+rowEndForm+")";
+
+            String formTotalPrice ="SUM(F5:F6)";
+            String formTotalCost ="SUM(G5:G6)";
+
+            setForm(cellCapexPrice,formCapexPrice);
+            setForm(cellCapexCost,formCapexCost);
+            setForm(cellOpexPrice,formOpexPrice);
+            setForm(cellOpexCost,formOpexCost);
+
+            setForm(cellTotalPrice,formTotalPrice);
+            setForm(cellTotalCost,formTotalCost);
+
+            formRecharger(sheet,rutaCell);
+
+            XSSFSheet sheet2 = workbook.getSheetAt(1);
+
+            int c = 2;
+
+            int[][] rutaCellSheet2 = {{1,c},{2,c},{3,c}};
+            formRecharger(sheet2,rutaCellSheet2);
 
             //Salida del archivo
             FileOutputStream outputStream = new FileOutputStream(pathOut);
             workbook.write(outputStream);
+            workbook.setForceFormulaRecalculation(true);
             workbook.close();
             outputStream.close();
         }
@@ -104,36 +191,46 @@ public class Main {
     }
 
     public static void styleCopier(int numRow,XSSFSheet sheet){
-        int cellNumI = 0;
+
+        XSSFRow rowObtained = sheet.getRow(24);
+        XSSFRow rowModified = sheet.getRow(numRow);
         for(int i = 0; i<24;i++){
-            XSSFRow rowObtained = sheet.getRow(24);
-            XSSFCell cellObtained = rowObtained.getCell(cellNumI);
+            XSSFCell cellObtained = rowObtained.getCell(i);
             XSSFCellStyle styleObtained = cellObtained.getCellStyle();
 
-            XSSFRow rowModified = sheet.getRow(numRow);
-            XSSFCell cellModified = rowModified.getCell(cellNumI);
+            XSSFCell cellModified = rowModified.getCell(i);
             cellModified.setCellStyle(styleObtained);
-            cellNumI++;
         }
     }
 
-    public static void formulaCopier(int numRow,XSSFSheet sheet){
-        int cellNumI = 11;
+    public static void formRecharger(XSSFSheet sheet, int[][] matriz){
 
+        for(int[] ruta: matriz){
+            XSSFRow rowPrueba = sheet.getRow(ruta[0]);
+            XSSFCell cellPrueba = rowPrueba.getCell(ruta[1]);
+            String form = cellPrueba.getCellFormula();
+            cellPrueba.setBlank();
+            cellPrueba.setCellFormula(form);
+        }
+
+    }
+
+    public static void setForm(XSSFCell cell,String form){
+        cell.setCellFormula(form);
+    }
+
+    public static void formulaCopier(int numRow,XSSFSheet sheet){
+
+        XSSFRow rowObtained = sheet.getRow(24);
+        XSSFRow rowModified = sheet.getRow(numRow);
         for(int i = 11; i<23;i++){
-            if(!(cellNumI == 13 || cellNumI == 16)){
-                XSSFRow rowObtained = sheet.getRow(24);
-                XSSFCell cellObtained = rowObtained.getCell(cellNumI);
+            if(!(i == 13 || i == 16)){
+                XSSFCell cellObtained = rowObtained.getCell(i);
                 String formulaObtained = cellObtained.getCellFormula();
 
-                XSSFRow rowModified = sheet.getRow(numRow);
-                XSSFCell cellModified = rowModified.getCell(cellNumI);
+                XSSFCell cellModified = rowModified.getCell(i);
                 cellModified.setCellFormula(formulaObtained);
-                cellNumI++;
-            }else {
-                cellNumI++;
             }
-
         }
     }
 
@@ -163,11 +260,13 @@ public class Main {
                 XSSFCell cellObtained = rowObtained.getCell(i);
 
                 if(i == 10){
-                    cellObtained.setCellValue(values.data.getUnitPrice());
+                    String marg = values.data.getMarg();
+                    int rowForm = row+1;
+                    cellObtained.setCellFormula("N"+rowForm+"/"+marg);
                     continue;
                 }
 
-                if(i == 11){
+                if(i == 13){
                     cellObtained.setCellValue(values.data.unitCost);
                     continue;
                 }

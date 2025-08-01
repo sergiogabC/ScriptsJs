@@ -3,6 +3,7 @@ package org.example;
 
 public class DataComplete {
     int row;
+
     Data data;
     @Override
     public String toString() {
@@ -11,5 +12,6 @@ public class DataComplete {
                 ", data=" + data +
                 '}';
     }
+
 
 }
